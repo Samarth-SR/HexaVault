@@ -1,0 +1,90 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import bcrypt
+import random
+import time
+
+# Sample hashed master password (you'd store this securely)
+hashed_master_password = bcrypt.hashpw("test123".encode(), bcrypt.gensalt())
+
+# Dictionary to store user-specific 2FA codes and their expiration time
+user_2fa_codes = {}
+
+# Function to check master password
+def check_master_password(entered_password):
+    return bcrypt.checkpw(entered_password.encode(), hashed_master_password)
+
+# Function to generate a 2FA code
+def generate_2fa_code():
+    return random.randint(100000, 999999)  # Generates a 6-digit code
+
+# Function to send email (2FA or alert)
+def send_email(receiver_email, subject, body):
+    sender_email = "samarth565rao@gmail.com"
+    sender_password = "amol ifwr kvvm ehlh"  # Use an app-specific password
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = subject
+    message.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+        server.quit()
+        print(f"{subject} email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
+# Main login function
+def login():
+    max_attempts = 3
+    attempts = 0
+    user_email = input("Enter your email: ")
+
+    while attempts < max_attempts:
+        entered_password = input("Enter the master password: ")
+        
+        if check_master_password(entered_password):
+            print("Master password correct!")
+            
+            # Generate and send 2FA code
+            generated_code = generate_2fa_code()
+            expiration_time = time.time() + 600  # Code valid for 10 minutes
+            user_2fa_codes[user_email] = (generated_code, expiration_time)
+            send_email(user_email, "Your HexaVault 2FA Code", 
+                       f"Your 2FA code is: {generated_code}. It is valid for the next 10 minutes.")
+            
+            # Ask for the 2FA code
+            user_input_code = input("Enter the 2FA code you received: ")
+            
+            # Retrieve the correct 2FA code for the user
+            stored_code, expiry = user_2fa_codes.get(user_email, (None, None))
+            
+            if time.time() > expiry:
+                print("2FA code has expired.")
+                break
+            
+            if user_input_code == str(stored_code):
+                print("2FA successful! Login complete.")
+                break
+            else:
+                print("Invalid 2FA code.")
+                break
+        
+        else:
+            attempts += 1
+            print(f"Incorrect master password. Attempts remaining: {max_attempts - attempts}")
+            
+            # Send alert email on failed attempt
+            if attempts == max_attempts:
+                send_email(user_email, "Unauthorized Login Attempt", 
+                           "Someone has attempted to log in to your account with an incorrect password.")
+                print("Max attempts reached. Alert email sent.")
+                
+if __name__ == "__main__":
+    login()
