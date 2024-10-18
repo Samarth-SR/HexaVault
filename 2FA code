@@ -21,8 +21,8 @@ def generate_2fa_code():
 
 # Function to send email (2FA or alert)
 def send_email(receiver_email, subject, body):
-    sender_email = "samarth565rao@gmail.com"
-    sender_password = "amol ifwr kvvm ehlh"  # Use an app-specific password
+    sender_email = "sample_mail@email.com"      #use your preffered mail ID
+    sender_password = "X"  # Use an app-specific password
 
     message = MIMEMultipart()
     message["From"] = sender_email
