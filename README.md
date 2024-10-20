@@ -54,3 +54,6 @@
 ## Contributing
 
 Feel free to fork this repository and submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
+
+## Contact
+Email: samarth565rao@gmail.com
