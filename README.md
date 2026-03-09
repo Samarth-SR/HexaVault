@@ -57,3 +57,6 @@ Feel free to fork this repository and submit pull requests. For major changes, p
 
 ## Contact
 Email: samarth565rao@gmail.com
+
+#Additional info
+Was built in 2024 as a first year hackathon and secured the win, updated the repo with complete codebase in 2026.
